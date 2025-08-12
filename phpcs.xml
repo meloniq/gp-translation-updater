@@ -3,6 +3,5 @@
 	<description>GP Translation Updater rules for PHP_CodeSniffer</description>
 
 	<rule ref="WordPress">
-		<exclude name="WordPress.WP.I18n.NonSingularStringLiteralDomain" />
 	</rule>
 </ruleset>

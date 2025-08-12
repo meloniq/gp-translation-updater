@@ -1,0 +1,129 @@
+<?php
+/**
+ * Themes Updater class for handling updates.
+ *
+ * @package Meloniq\GpTranslationUpdater
+ */
+
+namespace Meloniq\GpTranslationUpdater;
+
+/**
+ * Themes Updater class for handling updates.
+ */
+class Themes_Updater extends Updater {
+
+	/**
+	 * The WP API URL for updates.
+	 *
+	 * @var string
+	 */
+	protected $wp_api_url = 'https://api.wordpress.org/themes/update-check/1.1/';
+
+	/**
+	 * Collect items from the HTTP request.
+	 *
+	 * @param array  $r   The request arguments.
+	 * @param string $url The request URL.
+	 *
+	 * @return array Modified request arguments.
+	 */
+	public function collect_items( $r, $url ) {
+		if ( ! $this->is_wp_api_request( $url ) ) {
+			return $r;
+		}
+
+		$themes = $this->decode( $r['body']['themes'] );
+		if ( empty( $themes ) ) {
+			return $r;
+		}
+
+		$this->locale = isset( $themes['locale'] ) ? $themes['locale'] : array();
+		if ( ! is_array( $this->locale ) ) {
+			$this->locale = array();
+		}
+
+		$themes_to_check = $this->get_marked_themes();
+
+		foreach ( $themes['themes'] as $name => $info ) {
+			if ( ! is_array( $info ) ) {
+				continue;
+			}
+
+			if ( ! array_key_exists( $name, $themes_to_check ) ) {
+				continue;
+			}
+
+			$info['GlotPress API URI']  = $themes_to_check[ $name ]['uri'];
+			$info['GlotPress API Path'] = $themes_to_check[ $name ]['path'];
+
+			$this->items[ $name ] = $info;
+		}
+
+		return $r;
+	}
+
+	/**
+	 * Get themes that have the 'GlotPress API URI' and 'GlotPress API Path' header,
+	 * since it's not passed to the updater request.
+	 *
+	 * @return array
+	 */
+	protected function get_marked_themes() {
+		if ( ! function_exists( 'wp_get_themes' ) ) {
+			return array();
+		}
+
+		$marked = array();
+
+		foreach ( wp_get_themes() as $key => $theme ) {
+			if ( $theme->get( 'GlotPress API URI' ) ) {
+				$marked[ $key ] = array(
+					'uri'  => $theme->get( 'GlotPress API URI' ),
+					'path' => $theme->get( 'GlotPress API Path' ),
+				);
+			}
+		}
+
+		return $marked;
+	}
+
+	/**
+	 * Alters the update requests based on the response.
+	 *
+	 * @param mixed  $response The HTTP response.
+	 * @param array  $args     The request arguments.
+	 * @param string $url      The request URL.
+	 *
+	 * @return mixed Modified response.
+	 */
+	public function alter_update_requests( $response, $args, $url ) {
+		if ( ! $this->is_wp_api_request( $url ) ) {
+			return $response;
+		}
+
+		$items = $this->get_items();
+		if ( empty( $items ) ) {
+			return $response;
+		}
+
+		$themes = $this->decode( $response['body'] );
+		if ( ! is_array( $themes ) ) {
+			$themes = array();
+		}
+
+		// Check for updates for each item.
+		foreach ( $items as $key => $item ) {
+
+			$gp_updates = $this->check_for_updates( $item );
+			if ( ! $gp_updates ) {
+				continue;
+			}
+
+			$themes['translations'][ $key ] = $gp_updates;
+		}
+
+		$response['body'] = $this->encode( $themes );
+
+		return $response;
+	}
+}

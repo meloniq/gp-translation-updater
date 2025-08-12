@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Plugin Name:       GP Translation Updater
  * Plugin URI:        https://blog.meloniq.net/gp-translation-updater/
  *
@@ -17,6 +17,8 @@
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.html
  *
  * Text Domain:       gp-translation-updater
+ *
+ * @package Meloniq\GpTranslationUpdater
  */
 
 namespace Meloniq\GpTranslationUpdater;
@@ -28,4 +30,19 @@ if ( ! defined( 'WPINC' ) ) {
 
 define( 'GPUPD_TD', 'gp-translation-updater' );
 
+/**
+ * Setup plugin data.
+ *
+ * @return void
+ */
+function setup() {
+	global $gpupd_updater;
 
+	require_once __DIR__ . 'src/class-updater.php';
+	require_once __DIR__ . 'src/class-plugins-updater.php';
+	require_once __DIR__ . 'src/class-themes-updater.php';
+
+	$gpupd_updater['plugins-updater'] = new Plugins_Updater();
+	$gpupd_updater['themes-updater']  = new Themes_Updater();
+}
+add_action( 'after_setup_theme', 'Meloniq\GpTranslationUpdater\setup' );
