@@ -20,6 +20,15 @@ class Plugins_Updater extends Updater {
 	protected $wp_api_url = 'https://api.wordpress.org/plugins/update-check/1.1/';
 
 	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		add_filter( 'extra_plugin_headers', array( $this, 'extra_headers' ) );
+
+		parent::__construct();
+	}
+
+	/**
 	 * Collect items from the HTTP request.
 	 *
 	 * @param array  $r   The request arguments.

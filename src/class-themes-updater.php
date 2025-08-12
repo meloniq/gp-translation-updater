@@ -20,6 +20,15 @@ class Themes_Updater extends Updater {
 	protected $wp_api_url = 'https://api.wordpress.org/themes/update-check/1.1/';
 
 	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		add_filter( 'extra_theme_headers', array( $this, 'extra_headers' ) );
+
+		parent::__construct();
+	}
+
+	/**
 	 * Collect items from the HTTP request.
 	 *
 	 * @param array  $r   The request arguments.

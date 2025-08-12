@@ -63,6 +63,20 @@ abstract class Updater {
 	abstract public function alter_update_requests( $response, $args, $url );
 
 	/**
+	 * Adds extra headers for the GlotPress API URI and Path.
+	 *
+	 * @param array $headers The existing headers.
+	 *
+	 * @return array Modified headers.
+	 */
+	public function extra_headers( $headers ) {
+		$headers['GlotPress API URI']  = 'GlotPress API URI';
+		$headers['GlotPress API Path'] = 'GlotPress API Path';
+
+		return $headers;
+	}
+
+	/**
 	 * Gets the items for the update request.
 	 *
 	 * @return array The items to be updated.
@@ -88,6 +102,10 @@ abstract class Updater {
 	 * @return bool True if the request is a WP API request, false otherwise.
 	 */
 	protected function is_wp_api_request( $url ) {
+		if ( empty( $url ) || ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
+			return false;
+		}
+
 		return strpos( $url, $this->wp_api_url ) !== false;
 	}
 
@@ -114,7 +132,7 @@ abstract class Updater {
 			'body'    => $this->encode( $payload ),
 		);
 
-		$raw_response = wp_remote_post( $this->api_url, $args );
+		$raw_response = wp_remote_post( $api_url, $args );
 		if ( is_wp_error( $raw_response ) || 200 !== wp_remote_retrieve_response_code( $raw_response ) ) {
 			return false;
 		}
