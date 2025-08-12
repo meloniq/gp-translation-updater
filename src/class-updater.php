@@ -128,9 +128,14 @@ abstract class Updater {
 		);
 
 		$args = array(
-			'timeout' => 30,
+			'timeout' => 10,
 			'body'    => $this->encode( $payload ),
 		);
+
+		// Disable SSL verification in debug mode.
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			$args['sslverify'] = false;
+		}
 
 		$raw_response = wp_remote_post( $api_url, $args );
 		if ( is_wp_error( $raw_response ) || 200 !== wp_remote_retrieve_response_code( $raw_response ) ) {
