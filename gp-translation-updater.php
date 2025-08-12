@@ -18,6 +18,8 @@
  *
  * Text Domain:       gp-translation-updater
  *
+ * Network:           true
+ *
  * @package Meloniq\GpTranslationUpdater
  */
 
@@ -38,9 +40,9 @@ define( 'GPUPD_TD', 'gp-translation-updater' );
 function setup() {
 	global $gpupd_updater;
 
-	require_once __DIR__ . 'src/class-updater.php';
-	require_once __DIR__ . 'src/class-plugins-updater.php';
-	require_once __DIR__ . 'src/class-themes-updater.php';
+	require_once trailingslashit( __DIR__ ) . 'src/class-updater.php';
+	require_once trailingslashit( __DIR__ ) . 'src/class-plugins-updater.php';
+	require_once trailingslashit( __DIR__ ) . 'src/class-themes-updater.php';
 
 	$gpupd_updater['plugins-updater'] = new Plugins_Updater();
 	$gpupd_updater['themes-updater']  = new Themes_Updater();
