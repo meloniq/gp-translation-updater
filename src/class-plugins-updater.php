@@ -94,11 +94,30 @@ class Plugins_Updater extends Updater {
 				continue;
 			}
 
-			$plugins['translations'][ $key ] = $gp_updates;
+			$plugins['translations'][ $key ] = $this->prepare_update_response( $item, $gp_updates );
 		}
 
 		$response['body'] = $this->encode( $plugins );
 
 		return $response;
+	}
+
+	/**
+	 * Prepare update response.
+	 *
+	 * @param array $item The item to prepare.
+	 * @param array $updates The updates to apply.
+	 *
+	 * @return array Prepared update response.
+	 */
+	protected function prepare_update_response( $item, $updates ) {
+		foreach ( $updates as $key => $update ) {
+			$updates[ $key ]['type']       = 'plugin';
+			$updates[ $key ]['slug']       = $item['TextDomain']; // todo: split key.
+			$updates[ $key ]['version']    = $item['Version'];
+			$updates[ $key ]['autoupdate'] = true;
+		}
+
+		return $updates;
 	}
 }

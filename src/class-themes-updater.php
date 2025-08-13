@@ -128,11 +128,30 @@ class Themes_Updater extends Updater {
 				continue;
 			}
 
-			$themes['translations'][ $key ] = $gp_updates;
+			$themes['translations'][ $key ] = $this->prepare_update_response( $item, $gp_updates );
 		}
 
 		$response['body'] = $this->encode( $themes );
 
 		return $response;
+	}
+
+	/**
+	 * Prepare update response.
+	 *
+	 * @param array $item The item to prepare.
+	 * @param array $updates The updates to apply.
+	 *
+	 * @return array Prepared update response.
+	 */
+	protected function prepare_update_response( $item, $updates ) {
+		foreach ( $updates as $key => $update ) {
+			$updates[ $key ]['type']       = 'theme';
+			$updates[ $key ]['slug']       = $item['TextDomain']; // todo: split key.
+			$updates[ $key ]['version']    = $item['Version'];
+			$updates[ $key ]['autoupdate'] = true;
+		}
+
+		return $updates;
 	}
 }
