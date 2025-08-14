@@ -46,7 +46,7 @@ class Themes_Updater extends Updater {
 			return $r;
 		}
 
-		$this->locale = isset( $themes['locale'] ) ? $themes['locale'] : array();
+		$this->locale = isset( $r['body']['locale'] ) ? $this->decode( $r['body']['locale'] ) : array();
 		if ( ! is_array( $this->locale ) ) {
 			$this->locale = array();
 		}
@@ -128,7 +128,9 @@ class Themes_Updater extends Updater {
 				continue;
 			}
 
-			$themes['translations'][ $key ] = $this->prepare_update_response( $item, $gp_updates );
+			$prepared_updates = $this->prepare_update_response( $item, $gp_updates );
+
+			$themes['translations'][ $key ] = $prepared_updates;
 		}
 
 		$response['body'] = $this->encode( $themes );
@@ -147,7 +149,7 @@ class Themes_Updater extends Updater {
 	protected function prepare_update_response( $item, $updates ) {
 		foreach ( $updates as $key => $update ) {
 			$updates[ $key ]['type']       = 'theme';
-			$updates[ $key ]['slug']       = $item['TextDomain']; // todo: split key.
+			$updates[ $key ]['slug']       = ''; // todo: ??
 			$updates[ $key ]['version']    = $item['Version'];
 			$updates[ $key ]['autoupdate'] = true;
 		}

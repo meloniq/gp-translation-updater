@@ -48,3 +48,22 @@ function setup() {
 	$gpupd_updater['themes-updater']  = new Themes_Updater();
 }
 add_action( 'after_setup_theme', 'Meloniq\GpTranslationUpdater\setup' );
+
+/**
+ * Error logging.
+ *
+ * @param mixed $message The message to log.
+ *
+ * @return void
+ */
+function gp_error_log( $message ) {
+	if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG ) {
+		return;
+	}
+
+	if ( is_array( $message ) || is_object( $message ) ) {
+		error_log( print_r( $message, true ) ); // phpcs:ignore
+	} else {
+		error_log( $message ); // phpcs:ignore
+	}
+}

@@ -46,7 +46,7 @@ class Plugins_Updater extends Updater {
 			return $r;
 		}
 
-		$this->locale = isset( $plugins['locale'] ) ? $plugins['locale'] : array();
+		$this->locale = isset( $r['body']['locale'] ) ? $this->decode( $r['body']['locale'] ) : array();
 		if ( ! is_array( $this->locale ) ) {
 			$this->locale = array();
 		}
@@ -94,7 +94,9 @@ class Plugins_Updater extends Updater {
 				continue;
 			}
 
-			$plugins['translations'][ $key ] = $this->prepare_update_response( $item, $gp_updates );
+			$prepared_updates = $this->prepare_update_response( $item, $gp_updates );
+
+			$plugins['translations'][ $key ] = $prepared_updates;
 		}
 
 		$response['body'] = $this->encode( $plugins );
