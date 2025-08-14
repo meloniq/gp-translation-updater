@@ -94,9 +94,13 @@ class Plugins_Updater extends Updater {
 				continue;
 			}
 
-			$prepared_updates = $this->prepare_update_response( $item, $gp_updates );
+			$slug_parts = explode( '/', $key );
+			$slug       = $slug_parts[0];
 
-			$plugins['translations'][ $key ] = $prepared_updates;
+			$prepared_updates = $this->prepare_update_response( $gp_updates, $item, $slug );
+			foreach ( $prepared_updates as $update_key => $update ) {
+				$plugins['translations'][] = $update;
+			}
 		}
 
 		$response['body'] = $this->encode( $plugins );
@@ -107,15 +111,16 @@ class Plugins_Updater extends Updater {
 	/**
 	 * Prepare update response.
 	 *
-	 * @param array $item The item to prepare.
-	 * @param array $updates The updates to apply.
+	 * @param array  $updates The updates to apply.
+	 * @param array  $item The item to prepare.
+	 * @param string $slug The slug of the item.
 	 *
 	 * @return array Prepared update response.
 	 */
-	protected function prepare_update_response( $item, $updates ) {
+	protected function prepare_update_response( $updates, $item, $slug ) {
 		foreach ( $updates as $key => $update ) {
 			$updates[ $key ]['type']       = 'plugin';
-			$updates[ $key ]['slug']       = $item['TextDomain']; // todo: split key.
+			$updates[ $key ]['slug']       = $slug;
 			$updates[ $key ]['version']    = $item['Version'];
 			$updates[ $key ]['autoupdate'] = true;
 		}

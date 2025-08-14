@@ -128,9 +128,10 @@ class Themes_Updater extends Updater {
 				continue;
 			}
 
-			$prepared_updates = $this->prepare_update_response( $item, $gp_updates );
-
-			$themes['translations'][ $key ] = $prepared_updates;
+			$prepared_updates = $this->prepare_update_response( $gp_updates, $item, $key );
+			foreach ( $prepared_updates as $update_key => $update ) {
+				$themes['translations'][] = $update;
+			}
 		}
 
 		$response['body'] = $this->encode( $themes );
@@ -141,15 +142,16 @@ class Themes_Updater extends Updater {
 	/**
 	 * Prepare update response.
 	 *
-	 * @param array $item The item to prepare.
-	 * @param array $updates The updates to apply.
+	 * @param array  $updates The updates to apply.
+	 * @param array  $item The item to prepare.
+	 * @param string $slug The slug of the item.
 	 *
 	 * @return array Prepared update response.
 	 */
-	protected function prepare_update_response( $item, $updates ) {
+	protected function prepare_update_response( $updates, $item, $slug ) {
 		foreach ( $updates as $key => $update ) {
 			$updates[ $key ]['type']       = 'theme';
-			$updates[ $key ]['slug']       = ''; // todo: ??
+			$updates[ $key ]['slug']       = $slug;
 			$updates[ $key ]['version']    = $item['Version'];
 			$updates[ $key ]['autoupdate'] = true;
 		}

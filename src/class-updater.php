@@ -39,6 +39,13 @@ abstract class Updater {
 	public function __construct() {
 		add_filter( 'http_request_args', array( $this, 'collect_items' ), 10, 2 );
 		add_filter( 'http_response', array( $this, 'alter_update_requests' ), 10, 3 );
+
+		// Only run in debug mode.
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			// allow local requests.
+			add_filter( 'http_request_host_is_external', '__return_true' );
+			add_filter( 'http_request_args', array( $this, 'disable_ssl_verification' ) );
+		}
 	}
 
 	/**
@@ -61,6 +68,17 @@ abstract class Updater {
 	 * @return mixed Modified response.
 	 */
 	abstract public function alter_update_requests( $response, $args, $url );
+
+	/**
+	 * Prepare update response.
+	 *
+	 * @param array  $updates The updates to apply.
+	 * @param array  $item The item to prepare.
+	 * @param string $slug The slug of the item.
+	 *
+	 * @return array Prepared update response.
+	 */
+	abstract protected function prepare_update_response( $updates, $item, $slug );
 
 	/**
 	 * Adds extra headers for the GlotPress API URI and Path.
@@ -138,11 +156,6 @@ abstract class Updater {
 			'body'    => $this->encode( $payload ),
 		);
 
-		// Disable SSL verification in debug mode.
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			$args['sslverify'] = false;
-		}
-
 		$raw_response = wp_remote_post( $api_url, $args );
 		if ( is_wp_error( $raw_response ) ) {
 			gp_error_log( 'GlotPress API request error: ' . $raw_response->get_error_message() );
@@ -182,6 +195,21 @@ abstract class Updater {
 		}
 
 		return $api_url;
+	}
+
+	/**
+	 * Disable SSL verification for local requests.
+	 *
+	 * @param array $args The request arguments.
+	 *
+	 * @return array Modified request arguments.
+	 */
+	public function disable_ssl_verification( $args ) {
+		if ( ! isset( $args['sslverify'] ) || $args['sslverify'] ) {
+			$args['sslverify'] = false;
+		}
+
+		return $args;
 	}
 
 	/**
