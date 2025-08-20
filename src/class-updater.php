@@ -198,6 +198,36 @@ abstract class Updater {
 	}
 
 	/**
+	 * Prepares the download URL for the update package.
+	 *
+	 * @param string $package_url The package URL.
+	 * @param array  $item The item to prepare.
+	 * @param string $slug The slug of the item.
+	 *
+	 * @return string The prepared download URL.
+	 */
+	public function prepare_download_url( $package_url, $item, $slug ) {
+		$textdomain = $slug;
+
+		if ( ! empty( $item['Text Domain'] ) ) {
+			$textdomain = $item['Text Domain'];
+		}
+
+		if ( ! empty( $item['TextDomain'] ) ) {
+			$textdomain = $item['TextDomain'];
+		}
+
+		$package_url = add_query_arg(
+			array(
+				'textdomain' => $textdomain,
+			),
+			$package_url
+		);
+
+		return $package_url;
+	}
+
+	/**
 	 * Disable SSL verification for local requests.
 	 *
 	 * @param array $args The request arguments.

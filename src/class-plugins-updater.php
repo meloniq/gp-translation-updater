@@ -126,7 +126,7 @@ class Plugins_Updater extends Updater {
 				'language'   => $gp_update['language'],
 				'version'    => $item['Version'],
 				'updated'    => $gp_update['updated'],
-				'package'    => $gp_update['package'],
+				'package'    => $this->prepare_download_url( $gp_update['package'], $item, $slug ),
 				'autoupdate' => true,
 			);
 		}
