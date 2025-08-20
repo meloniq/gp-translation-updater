@@ -51,6 +51,11 @@ class Plugins_Updater extends Updater {
 			$this->locale = array();
 		}
 
+		$this->translations = isset( $r['body']['translations'] ) ? $this->decode( $r['body']['translations'] ) : array();
+		if ( ! is_array( $this->translations ) ) {
+			$this->translations = array();
+		}
+
 		foreach ( $plugins['plugins'] as $slug => $info ) {
 			if ( empty( $info['GlotPress API URI'] ) || empty( $info['GlotPress API Path'] ) ) {
 				continue;
@@ -89,13 +94,13 @@ class Plugins_Updater extends Updater {
 		// Check for updates for each item.
 		foreach ( $items as $key => $item ) {
 
-			$gp_updates = $this->check_for_updates( $item );
+			$slug_parts = explode( '/', $key );
+			$slug       = $slug_parts[0];
+
+			$gp_updates = $this->check_for_updates( $item, $slug );
 			if ( ! $gp_updates ) {
 				continue;
 			}
-
-			$slug_parts = explode( '/', $key );
-			$slug       = $slug_parts[0];
 
 			$prepared_updates = $this->prepare_update_response( $gp_updates, $item, $slug );
 			foreach ( $prepared_updates as $update_key => $update ) {

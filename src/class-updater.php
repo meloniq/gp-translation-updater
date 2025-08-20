@@ -34,6 +34,13 @@ abstract class Updater {
 	protected $locale = array();
 
 	/**
+	 * Current translations data for the updates.
+	 *
+	 * @var array
+	 */
+	protected $translations = array();
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -113,6 +120,21 @@ abstract class Updater {
 	}
 
 	/**
+	 * Gets the translations for the update request.
+	 *
+	 * @param string $textdomain The text domain of the item.
+	 *
+	 * @return array The translations.
+	 */
+	protected function get_translations( $textdomain ) {
+		if ( isset( $this->translations[ $textdomain ] ) ) {
+			return $this->translations[ $textdomain ];
+		}
+
+		return array();
+	}
+
+	/**
 	 * Is WP API request.
 	 *
 	 * @param string $url The request URL.
@@ -130,11 +152,12 @@ abstract class Updater {
 	/**
 	 * Checks for updates by sending a request to the API URL.
 	 *
-	 * @param array $item The item to check for updates.
+	 * @param array  $item The item to check for updates.
+	 * @param string $slug The slug of the item.
 	 *
 	 * @return mixed|false The response body if successful, false otherwise.
 	 */
-	protected function check_for_updates( $item ) {
+	protected function check_for_updates( $item, $slug ) {
 		$api_url = $this->get_api_url( $item['GlotPress API URI'] );
 		if ( ! $api_url ) {
 			return false;
@@ -146,9 +169,17 @@ abstract class Updater {
 			return false;
 		}
 
+		$textdomain   = $this->determine_textdomain( $item, $slug );
+		$translations = $this->get_translations( $textdomain );
+		if ( ! is_array( $translations ) ) {
+			gp_error_log( 'Invalid translations data.' );
+			return false;
+		}
+
 		$payload = array(
-			'item'   => $item['GlotPress API Path'],
-			'locale' => $locale,
+			'item'         => $item['GlotPress API Path'],
+			'locale'       => $locale,
+			'translations' => $translations,
 		);
 
 		$args = array(
@@ -188,7 +219,7 @@ abstract class Updater {
 			return false;
 		}
 
-		$api_url = trailingslashit( $uri ) . 'wp-json/gp/translations/update-check/1.1/';
+		$api_url = trailingslashit( $uri ) . 'wp-json/gp/translations/update-check/0.1/';
 		$api_url = apply_filters( 'gp_translation_updater_api_url', $api_url, $uri );
 		if ( empty( $api_url ) || ! filter_var( $api_url, FILTER_VALIDATE_URL ) ) {
 			return false;
@@ -225,6 +256,26 @@ abstract class Updater {
 		);
 
 		return $package_url;
+	}
+
+	/**
+	 * Determines the text domain for the item.
+	 *
+	 * @param array  $item The item to determine the text domain for.
+	 * @param string $slug The slug of the item.
+	 *
+	 * @return string The determined text domain.
+	 */
+	protected function determine_textdomain( $item, $slug ) {
+		if ( ! empty( $item['Text Domain'] ) ) {
+			return $item['Text Domain'];
+		}
+
+		if ( ! empty( $item['TextDomain'] ) ) {
+			return $item['TextDomain'];
+		}
+
+		return $slug;
 	}
 
 	/**
