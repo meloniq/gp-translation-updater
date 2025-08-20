@@ -111,18 +111,24 @@ class Plugins_Updater extends Updater {
 	/**
 	 * Prepare update response.
 	 *
-	 * @param array  $updates The updates to apply.
+	 * @param array  $gp_updates The updates to apply.
 	 * @param array  $item The item to prepare.
 	 * @param string $slug The slug of the item.
 	 *
 	 * @return array Prepared update response.
 	 */
-	protected function prepare_update_response( $updates, $item, $slug ) {
-		foreach ( $updates as $key => $update ) {
-			$updates[ $key ]['type']       = 'plugin';
-			$updates[ $key ]['slug']       = $slug;
-			$updates[ $key ]['version']    = $item['Version'];
-			$updates[ $key ]['autoupdate'] = true;
+	protected function prepare_update_response( $gp_updates, $item, $slug ) {
+		$updates = array();
+		foreach ( $gp_updates as $gp_update ) {
+			$updates[] = array(
+				'type'       => 'plugin',
+				'slug'       => $slug,
+				'language'   => $gp_update['language'],
+				'version'    => $item['Version'],
+				'updated'    => $gp_update['updated'],
+				'package'    => $gp_update['package'],
+				'autoupdate' => true,
+			);
 		}
 
 		return $updates;
