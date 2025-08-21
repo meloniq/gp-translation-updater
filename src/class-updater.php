@@ -63,18 +63,18 @@ abstract class Updater {
 	 *
 	 * @return array Modified request arguments.
 	 */
-	abstract public function collect_items( $r, $url );
+	abstract public function collect_items( array $r, string $url ): array;
 
 	/**
 	 * Alters the update requests based on the response.
 	 *
-	 * @param mixed  $response The HTTP response.
+	 * @param array  $response The HTTP response.
 	 * @param array  $args     The request arguments.
 	 * @param string $url      The request URL.
 	 *
-	 * @return mixed Modified response.
+	 * @return array Modified response.
 	 */
-	abstract public function alter_update_requests( $response, $args, $url );
+	abstract public function alter_update_requests( array $response, array $args, string $url ): array;
 
 	/**
 	 * Prepare update response.
@@ -85,7 +85,7 @@ abstract class Updater {
 	 *
 	 * @return array Prepared update response.
 	 */
-	abstract protected function prepare_update_response( $updates, $item, $slug );
+	abstract protected function prepare_update_response( array $updates, array $item, string $slug ): array;
 
 	/**
 	 * Adds extra headers for the GlotPress API URI and Path.
@@ -94,7 +94,7 @@ abstract class Updater {
 	 *
 	 * @return array Modified headers.
 	 */
-	public function extra_headers( $headers ) {
+	public function extra_headers( array $headers ): array {
 		$headers['GlotPress API URI']  = 'GlotPress API URI';
 		$headers['GlotPress API Path'] = 'GlotPress API Path';
 
@@ -106,16 +106,16 @@ abstract class Updater {
 	 *
 	 * @return array The items to be updated.
 	 */
-	protected function get_items() {
+	protected function get_items(): array {
 		return $this->items;
 	}
 
 	/**
 	 * Gets the locale for the update request.
 	 *
-	 * @return string The locale.
+	 * @return array The locale.
 	 */
-	protected function get_locale() {
+	protected function get_locale(): array {
 		return $this->locale;
 	}
 
@@ -126,7 +126,7 @@ abstract class Updater {
 	 *
 	 * @return array The translations.
 	 */
-	protected function get_translations( $textdomain ) {
+	protected function get_translations( string $textdomain ): array {
 		if ( isset( $this->translations[ $textdomain ] ) ) {
 			return $this->translations[ $textdomain ];
 		}
@@ -141,7 +141,7 @@ abstract class Updater {
 	 *
 	 * @return bool True if the request is a WP API request, false otherwise.
 	 */
-	protected function is_wp_api_request( $url ) {
+	protected function is_wp_api_request( string $url ): bool {
 		if ( empty( $url ) || ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
 			return false;
 		}
@@ -155,9 +155,9 @@ abstract class Updater {
 	 * @param array  $item The item to check for updates.
 	 * @param string $slug The slug of the item.
 	 *
-	 * @return mixed|false The response body if successful, false otherwise.
+	 * @return array|false The response body if successful, false otherwise.
 	 */
-	protected function check_for_updates( $item, $slug ) {
+	protected function check_for_updates( array $item, string $slug ): array|false {
 		$api_url = $this->get_api_url( $item['GlotPress API URI'] );
 		if ( ! $api_url ) {
 			return false;
@@ -212,17 +212,17 @@ abstract class Updater {
 	 *
 	 * @param string $uri The GlotPress API URI.
 	 *
-	 * @return string|false The API URL or false if not valid.
+	 * @return string The API URL or empty string if invalid.
 	 */
-	protected function get_api_url( $uri ) {
+	protected function get_api_url( string $uri ): string {
 		if ( empty( $uri ) || ! filter_var( $uri, FILTER_VALIDATE_URL ) ) {
-			return false;
+			return '';
 		}
 
 		$api_url = trailingslashit( $uri ) . 'wp-json/gp/translations/update-check/0.1/';
 		$api_url = apply_filters( 'gp_translation_updater_api_url', $api_url, $uri );
 		if ( empty( $api_url ) || ! filter_var( $api_url, FILTER_VALIDATE_URL ) ) {
-			return false;
+			return '';
 		}
 
 		return $api_url;
@@ -237,7 +237,7 @@ abstract class Updater {
 	 *
 	 * @return string The prepared download URL.
 	 */
-	public function prepare_download_url( $package_url, $item, $slug ) {
+	public function prepare_download_url( string $package_url, array $item, string $slug ): string {
 		$textdomain = $slug;
 
 		if ( ! empty( $item['Text Domain'] ) ) {
@@ -266,7 +266,7 @@ abstract class Updater {
 	 *
 	 * @return string The determined text domain.
 	 */
-	protected function determine_textdomain( $item, $slug ) {
+	protected function determine_textdomain( array $item, string $slug ): string {
 		if ( ! empty( $item['Text Domain'] ) ) {
 			return $item['Text Domain'];
 		}
@@ -285,7 +285,7 @@ abstract class Updater {
 	 *
 	 * @return array Modified request arguments.
 	 */
-	public function disable_ssl_verification( $args ) {
+	public function disable_ssl_verification( array $args ): array {
 		if ( ! isset( $args['sslverify'] ) || $args['sslverify'] ) {
 			$args['sslverify'] = false;
 		}
@@ -300,7 +300,7 @@ abstract class Updater {
 	 *
 	 * @return mixed The decoded data.
 	 */
-	protected function decode( $data ) {
+	protected function decode( string $data ): mixed {
 		return json_decode( $data, true );
 	}
 
@@ -311,7 +311,7 @@ abstract class Updater {
 	 *
 	 * @return string The encoded data.
 	 */
-	protected function encode( $data ) {
+	protected function encode( mixed $data ): string {
 		return wp_json_encode( $data );
 	}
 }

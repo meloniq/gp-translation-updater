@@ -36,7 +36,7 @@ class Plugins_Updater extends Updater {
 	 *
 	 * @return array Modified request arguments.
 	 */
-	public function collect_items( $r, $url ) {
+	public function collect_items( array $r, string $url ): array {
 		if ( ! $this->is_wp_api_request( $url ) ) {
 			return $r;
 		}
@@ -70,13 +70,13 @@ class Plugins_Updater extends Updater {
 	/**
 	 * Alters the update requests based on the response.
 	 *
-	 * @param mixed  $response The HTTP response.
+	 * @param array  $response The HTTP response.
 	 * @param array  $args     The request arguments.
 	 * @param string $url      The request URL.
 	 *
-	 * @return mixed Modified response.
+	 * @return array Modified response.
 	 */
-	public function alter_update_requests( $response, $args, $url ) {
+	public function alter_update_requests( array $response, array $args, string $url ): array {
 		if ( ! $this->is_wp_api_request( $url ) ) {
 			return $response;
 		}
@@ -122,7 +122,7 @@ class Plugins_Updater extends Updater {
 	 *
 	 * @return array Prepared update response.
 	 */
-	protected function prepare_update_response( $gp_updates, $item, $slug ) {
+	protected function prepare_update_response( array $gp_updates, array $item, string $slug ): array {
 		$updates = array();
 		foreach ( $gp_updates as $gp_update ) {
 			$updates[] = array(
