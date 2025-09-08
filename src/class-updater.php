@@ -165,14 +165,14 @@ abstract class Updater {
 
 		$locale = $this->get_locale();
 		if ( empty( $locale ) || ! is_array( $locale ) ) {
-			gp_error_log( 'Invalid locale data.' );
+			gpupd_error_log( 'Invalid locale data.' );
 			return false;
 		}
 
 		$textdomain   = $this->determine_textdomain( $item, $slug );
 		$translations = $this->get_translations( $textdomain );
 		if ( ! is_array( $translations ) ) {
-			gp_error_log( 'Invalid translations data.' );
+			gpupd_error_log( 'Invalid translations data.' );
 			return false;
 		}
 
@@ -189,13 +189,13 @@ abstract class Updater {
 
 		$raw_response = wp_remote_post( $api_url, $args );
 		if ( is_wp_error( $raw_response ) ) {
-			gp_error_log( 'GlotPress API request error: ' . $raw_response->get_error_message() );
+			gpupd_error_log( 'GlotPress API request error: ' . $raw_response->get_error_message() );
 			return false;
 		}
 
 		if ( 200 !== wp_remote_retrieve_response_code( $raw_response ) ) {
-			gp_error_log( 'GlotPress API request failed with response code: ' . wp_remote_retrieve_response_code( $raw_response ) );
-			gp_error_log( 'Response body: ' . wp_remote_retrieve_body( $raw_response ) );
+			gpupd_error_log( 'GlotPress API request failed with response code: ' . wp_remote_retrieve_response_code( $raw_response ) );
+			gpupd_error_log( 'Response body: ' . wp_remote_retrieve_body( $raw_response ) );
 			return false;
 		}
 
@@ -220,7 +220,7 @@ abstract class Updater {
 		}
 
 		$api_url = trailingslashit( $uri ) . 'wp-json/gp/translations/update-check/0.1/';
-		$api_url = apply_filters( 'gp_translation_updater_api_url', $api_url, $uri );
+		$api_url = apply_filters( 'gpupd_api_url', $api_url, $uri );
 		if ( empty( $api_url ) || ! filter_var( $api_url, FILTER_VALIDATE_URL ) ) {
 			return '';
 		}

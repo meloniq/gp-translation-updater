@@ -56,7 +56,7 @@ add_action( 'after_setup_theme', 'Meloniq\GpTranslationUpdater\setup' );
  *
  * @return void
  */
-function gp_error_log( mixed $message ): void {
+function gpupd_error_log( mixed $message ): void {
 	if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG ) {
 		return;
 	}
