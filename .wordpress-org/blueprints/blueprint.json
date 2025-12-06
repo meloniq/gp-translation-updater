@@ -1,0 +1,8 @@
+{
+    "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+    "login": true,
+    "siteOptions": {
+        "blogname": "GP Translation Updater"
+    },
+    "landingPage": "/wp-admin/update-core.php"
+}
